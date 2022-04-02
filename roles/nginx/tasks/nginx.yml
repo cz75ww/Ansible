@@ -1,0 +1,40 @@
+---
+- name: Update apt cache
+  apt: 
+    update_cache: yes 
+    cache_valid_time: 3600
+    become: yes
+
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - "{{ item }}"
+    state: latest
+  with_items:
+    - python3-pip
+    - nginx
+    - net-tools
+    - git
+
+- name: create web diretory
+  file:
+    path: /var/www/{{ domain }}
+    state: directory
+    mode: '0775'
+    owner: root
+    group: root
+
+- name: delete default nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Copy file with owner and permissions
+  ansible.builtin.copy:
+    src: ../file/index.html
+    dest: /var/www/{{ domain }}
+    owner: root
+    group: root
+    mode: '0644'
+  notify: 
+    - restart nginx service
