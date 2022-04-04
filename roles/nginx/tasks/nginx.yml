@@ -3,7 +3,6 @@
   apt: 
     update_cache: yes 
     cache_valid_time: 3600
-    become: yes
 
 - name: Install packages
   ansible.builtin.package:
@@ -29,9 +28,14 @@
     path: /etc/nginx/sites-enabled/default
     state: absent
 
+- name: copying ngix demosession file
+  ansible.builtin.template:
+    src:  demosession.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ domain }}
+
 - name: Copy file with owner and permissions
   ansible.builtin.copy:
-    src: ../file/index.html
+    src: files/index.html
     dest: /var/www/{{ domain }}
     owner: root
     group: root
